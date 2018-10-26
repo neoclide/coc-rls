@@ -11,7 +11,7 @@
 'use strict'
 
 import * as child_process from 'child_process'
-import { commands, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, workspace } from 'coc.nvim'
+import { services, commands, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, workspace } from 'coc.nvim'
 import * as fs from 'fs'
 import path from 'path'
 import { ImplementationRequest, Location, NotificationType, TextDocumentPositionParams, WorkspaceFolder } from 'vscode-languageserver-protocol'
@@ -127,12 +127,13 @@ class ClientWorkspace {
     }
 
     // Create the language client and start the client.
-    this.lc = new LanguageClient('Rust Language Server', serverOptions, clientOptions)
+    this.lc = new LanguageClient('rust', 'Rust Language Server', serverOptions, clientOptions)
 
     const promise = this.progressCounter()
 
     const disposable = this.lc.start()
     context.subscriptions.push(disposable)
+    context.subscriptions.push(services.registLanguageClient(this.lc))
 
     this.registerCommands(context)
 

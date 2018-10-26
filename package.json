@@ -89,6 +89,17 @@
           "default": "rls-preview",
           "description": "Name of the RLS rustup component."
         },
+        "rust.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the Java language server.",
+          "scope": "window"
+        },
         "rust.sysroot": {
           "type": [
             "string",
