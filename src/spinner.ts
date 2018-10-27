@@ -10,11 +10,32 @@
 
 'use strict'
 
-import { workspace, StatusBarItem } from 'coc.nvim'
+import { workspace, StatusBarItem, events } from 'coc.nvim'
 
 let statusItem: StatusBarItem = workspace.createStatusBarItem(100)
 let spinnerTimer: NodeJS.Timer = null
 const spinner = ['◐', '◓', '◑', '◒']
+let shouldShown = true
+
+events.on('BufEnter', async () => {
+  await wait(20)
+  let document = await workspace.document
+  if (document && document.filetype == 'rust') {
+    shouldShown = true
+    statusItem.show()
+  } else {
+    shouldShown = false
+    statusItem.hide()
+  }
+})
+
+function wait(ms: number): Promise<any> {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}
 
 export function startSpinner(prefix: string, postfix: string): void {
   if (spinnerTimer != null) {
@@ -22,7 +43,7 @@ export function startSpinner(prefix: string, postfix: string): void {
   }
   let state = 0
   statusItem.text = ''
-  statusItem.show()
+  if (shouldShown) statusItem.show()
   spinnerTimer = setInterval(() => {
     statusItem.text = prefix + ' ' + spinner[state] + ' ' + postfix
     state = (state + 1) % spinner.length
