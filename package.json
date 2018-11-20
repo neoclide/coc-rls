@@ -1,6 +1,6 @@
 {
   "name": "coc-rls",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Rust language support - code completion, Intellisense, refactoring, reformatting, errors, snippets. A client for the Rust Language Server, built by the RLS team.",
   "main": "lib/index.js",
   "publisher": "chemzqm",
