@@ -51,7 +51,7 @@
             "string",
             "null"
           ],
-          "default": null,
+          "default": "rls",
           "description": "Path to rls executable (only required for rls developers)"
         },
         "rust-client.revealOutputChannelOn": {
