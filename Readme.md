@@ -44,8 +44,15 @@ This extension provides some options into `coc-settings.json`. These
 options have names which start with `rust.`. Install [coc-json](https://github.com/neoclide/coc-json)
 for auto completion support.
 
-Some highlights:
-
+- `rust-client.logToFile` - When set to true, RLS stderr is logged to a file at workspace root level.
+- `rust-client.rustupPath` - Path to rustup executable, default `rustup`.
+- `rust-client.rlsPath` - Path to rls executable (only required for rls developers), default: `null`.
+- `rust-client.revealOutputChannelOn` - Specifies message severity on which the output channel will be revealed.
+- `rust-client.updateOnStartup` - Update the RLS whenever the extension starts up, default: `false`.
+- `rust-client.disableRustup` - Disable usage of rustup and use rustc/rls from PATH.
+- `rust-client.channel` - Rust channel to install RLS from. By default it will use the same channel as your currently open project
+- `rust-client.rls-name` - Name of the RLS rustup component, default
+  `rls-preview`
 - `rust.show_warnings` - set to false to silence warnings in the editor.
 - `rust.all_targets` - build and index code for all targets (i.e., integration tests, examples, and benches)
 - `rust.build_lib` - if you have both a binary and library in your crate, set to
@@ -112,4 +119,3 @@ rustfmt and Racer, again both of these are run in-process by the RLS.
 ## LICENSE
 
 MIT
-
