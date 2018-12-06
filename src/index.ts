@@ -1,3 +1,4 @@
+/*tslint:disable*/
 // Copyright 2017 The RLS Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
@@ -116,7 +117,7 @@ class ClientWorkspace {
         { language: 'rust', scheme: 'file' },
         { language: 'rust', scheme: 'untitled' }
       ],
-      synchronize: { configurationSection: 'rust' },
+      synchronize: { configurationSection: ['rust', 'rust-client'] },
       // Controls when to focus the channel rather than when to reveal it in the drop-down list
       revealOutputChannelOn: this.config.revealOutputChannelOn,
       initializationOptions: {
