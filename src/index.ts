@@ -83,7 +83,7 @@ class ClientWorkspace {
         { language: 'rust', scheme: 'file' },
         { language: 'rust', scheme: 'untitled' }
       ],
-      synchronize: { configurationSection: ['rust', 'rust-client'] },
+      synchronize: { configurationSection: 'rust' },
       // Controls when to focus the channel rather than when to reveal it in the drop-down list
       revealOutputChannelOn: this.config.revealOutputChannelOn,
       initializationOptions: {

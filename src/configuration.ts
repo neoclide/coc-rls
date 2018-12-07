@@ -53,10 +53,6 @@ export class RLSConfiguration {
     return RLSConfiguration.readChannel(this.rustupPath, this.configuration, this.wsPath)
   }
 
-  public get componentName(): string {
-    return this.configuration.get('rust-client.rls-name', 'rls')
-  }
-
   /**
    * If specified, RLS will be spawned by executing a file at the given path.
    */
@@ -90,10 +86,10 @@ export class RLSConfiguration {
   }
 
   public rustupConfig(): RustupConfig {
-    return new RustupConfig(this.channel, this.rustupPath, this.componentName)
+    return new RustupConfig(this.channel, this.rustupPath)
   }
 
-  private static readRevealOutputChannelOn(configuration: WorkspaceConfiguration) {
+  private static readRevealOutputChannelOn(configuration: WorkspaceConfiguration): RevealOutputChannelOn {
     const setting = configuration.get<string>('rust-client.revealOutputChannelOn', 'never')
     return fromStringToRevealOutputChannelOn(setting)
   }

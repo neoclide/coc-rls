@@ -51,7 +51,6 @@ for auto completion support.
 - `rust-client.updateOnStartup` - Update the RLS whenever the extension starts up, default: `false`.
 - `rust-client.disableRustup` - Disable usage of rustup and use rustc/rls from PATH.
 - `rust-client.channel` - Rust channel to install RLS from. By default it will use the same channel as your currently open project
-- `rust-client.rls-name` - Name of the RLS rustup component, default
   `rls-preview`
 - `rust.show_warnings` - set to false to silence warnings in the editor.
 - `rust.all_targets` - build and index code for all targets (i.e., integration tests, examples, and benches)
