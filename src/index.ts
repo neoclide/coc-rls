@@ -90,7 +90,7 @@ class ClientWorkspace {
         omitInitBuild: true,
         cmdRun: true,
       },
-      // workspaceFolder: this.folder,
+      workspaceFolder: this.folder,
     }
 
     // Create the language client and start the client.
