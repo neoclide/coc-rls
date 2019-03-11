@@ -228,6 +228,11 @@ export function getActiveChannel(rustupPath: string, wsPath: string): string {
   try {
     // `rustup show active-toolchain` is available since rustup 1.12.0
     activeChannel = child_process.execSync(`${rustupPath} show active-toolchain`, { cwd: wsPath }).toString().trim()
+    // Since rustup 1.17.0 if the active toolchain is the default, we're told
+    // by means of a " (default)" suffix, so strip that off if it's present
+    // If on the other hand there's an override active, we'll get an
+    // " (overridden by ...)" message instead.
+    activeChannel = activeChannel.replace(/ \(.*\)$/, '')
   } catch (e) {
     // Possibly an old rustup version, so try rustup show
     const showOutput = child_process.execSync(`${rustupPath} show`, { cwd: wsPath }).toString()
