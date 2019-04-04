@@ -37,6 +37,41 @@ on IRC ([Mozilla servers](https://wiki.mozilla.org/IRC)). There is also some
   not the 'src' folder.
 - You'll be prompted to install the RLS. Once installed, the RLS should start
   building your project.
+  
+## Nixos
+  
+  Nixos users should use nix-shell or direnv for development. Follow [these instructions](https://nixos.wiki/wiki/Development_environment_with_nix-shell) to set them up first.
+
+Then create two files:
+1. An __.envrc__ file containing `use_nix`.
+2. And __shell.nix__ containing:
+```
+let
+  moz_overlay = import (builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz);
+  nixpkgs = import <nixpkgs> { overlays = [ moz_overlay ]; };
+  #rustNightlyChannel = (nixpkgs.rustChannelOf { date = "2019-01-26"; channel = "nightly"; }).rust;
+  rustStableChannel = nixpkgs.latest.rustChannels.stable.rust.override {
+    extensions = [
+      "rust-src"
+      "rls-preview"
+      "clippy-preview"
+      "rustfmt-preview"
+    ];
+  };
+in
+  with nixpkgs;
+  stdenv.mkDerivation {
+    name = "moz_overlay_shell";
+    buildInputs = [
+      rustStableChannel
+      rls
+      rustup
+    ];
+  }
+```
+Enter the shell in current directory and enjoy developing rust apps + coc.nvim + coc-rls :)
+
+Tip: If you want to use nightly channel uncomment that line and use it :)
 
 ## Configuration
 
