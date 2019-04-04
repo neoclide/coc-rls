@@ -70,6 +70,7 @@ in
   }
 ```
 Enter the shell in current directory and enjoy developing rust apps + coc.nvim + coc-rls :)
+
 Tip: If you want to use nightly channel uncomment that line and use it :)
 
 ## Configuration
