@@ -38,7 +38,7 @@ on IRC ([Mozilla servers](https://wiki.mozilla.org/IRC)). There is also some
 - You'll be prompted to install the RLS. Once installed, the RLS should start
   building your project.
   
-  ## Nixos
+## Nixos
   
   Nixos users should use nix-shell or direnv for development. Follow [these instructions](https://nixos.wiki/wiki/Development_environment_with_nix-shell) to set them up first.
 
