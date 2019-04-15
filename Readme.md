@@ -37,14 +37,16 @@ on IRC ([Mozilla servers](https://wiki.mozilla.org/IRC)). There is also some
   not the 'src' folder.
 - You'll be prompted to install the RLS. Once installed, the RLS should start
   building your project.
-  
+
 ## Nixos
-  
-  Nixos users should use nix-shell or direnv for development. Follow [these instructions](https://nixos.wiki/wiki/Development_environment_with_nix-shell) to set them up first.
+
+Nixos users should use nix-shell or direnv for development. Follow [these instructions](https://nixos.wiki/wiki/Development_environment_with_nix-shell) to set them up first.
 
 Then create two files:
-1. An __.envrc__ file containing `use_nix`.
-2. And __shell.nix__ containing:
+
+1. An **.envrc** file containing `use_nix`.
+2. And **shell.nix** containing:
+
 ```
 let
   moz_overlay = import (builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz);
@@ -69,6 +71,7 @@ in
     ];
   }
 ```
+
 Enter the shell in current directory and enjoy developing rust apps + coc.nvim + coc-rls :)
 
 Tip: If you want to use nightly channel uncomment that line and use it :)
@@ -96,15 +99,6 @@ for auto completion support.
 - `rust.cfg_test` - build and index test code (i.e., code with `#[cfg(test)]`/`#[test]`)
 
 ## Features
-
-### Commands
-
-Commands can be found in the command palette (`Denite coc-command`). We provide the
-following commands:
-
-- `Find Implementations` - Find locations of `impl` blocks for traits, structs, and enums.
-  Usefull to find all structs implementing a specific trait or all traits implemented for a struct.
-  Select a type when running the command.
 
 ### Snippets
 

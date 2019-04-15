@@ -112,49 +112,6 @@ class ClientWorkspace {
       return
     }
 
-    const findImplsDisposable =
-      commands.registerCommand('rls.findImpls',
-        async (): Promise<void> => {
-          if (!this.lc) {
-            return
-          }
-          await this.lc.onReady()
-          // Prior to https://github.com/rust-lang-nursery/rls/pull/936 we used a custom
-          // LSP message - if the implementation provider is specified this means we can use the 3.6 one.
-          const useLSPRequest = this.lc.initializeResult &&
-            this.lc.initializeResult.capabilities.implementationProvider === true
-          const request = useLSPRequest ? ImplementationRequest.type.method : 'rustDocument/implementations'
-
-          const position = await workspace.getCursorPosition()
-          const document = await workspace.document
-          if (!document || document.filetype !== 'rust') {
-            return
-          }
-
-          const params: TextDocumentPositionParams = {
-            textDocument: {
-              uri: document.uri
-            },
-            position
-          }
-          let locations: Location[]
-          try {
-            locations = await this.lc.sendRequest<Location[]>(request, params)
-          } catch (reason) {
-            workspace.showMessage('find implementations failed: ' + reason, 'error')
-            return
-          }
-
-          return commands.executeCommand(
-            'editor.action.showReferences',
-            document.uri,
-            position,
-            locations
-          )
-        }
-      )
-    context.subscriptions.push(findImplsDisposable)
-
     const rustupUpdateDisposable = commands.registerCommand('rls.update', () => {
       return rustupUpdate(this.config.rustupConfig())
     })
