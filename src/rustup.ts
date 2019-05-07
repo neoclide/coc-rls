@@ -32,7 +32,7 @@ export class RustupConfig {
 export async function runRlsViaRustup(env: any, config: RustupConfig): Promise<child_process.ChildProcess> {
   await ensureToolchain(config)
   await checkForRls(config)
-  return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env })
+  return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
 }
 
 export async function rustupUpdate(config: RustupConfig) {

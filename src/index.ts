@@ -262,16 +262,17 @@ class ClientWorkspace {
     let childProcessPromise: Promise<child_process.ChildProcess>
     if (rls_path) {
       const env = await this.makeRlsEnv(true)
-      console.info('running ' + rls_path)
-      childProcessPromise = Promise.resolve(child_process.spawn(rls_path, [], { env }))
+      workspace.showMessage(`running: ${rls_path} at ${workspace.rootPath}`)
+      childProcessPromise = Promise.resolve(child_process.spawn(rls_path, [], { env, cwd: workspace.rootPath }))
     } else if (this.config.rustupDisabled) {
       const env = await this.makeRlsEnv(true)
-      console.info('running ' + rls_path)
-      childProcessPromise = Promise.resolve(child_process.spawn('rls', [], { env }))
+      workspace.showMessage(`running: rls at ${workspace.rootPath}`)
+      childProcessPromise = Promise.resolve(child_process.spawn('rls', [], { env, cwd: workspace.rootPath }))
     } else {
       const env = await this.makeRlsEnv()
-      console.info('running with rustup')
-      childProcessPromise = runRlsViaRustup(env, this.config.rustupConfig())
+      let config = this.config.rustupConfig()
+      workspace.showMessage(`running: ${config.path} run ${config.channel} rls, at ${workspace.rootPath}`)
+      childProcessPromise = runRlsViaRustup(env, config)
     }
     try {
       const childProcess = await childProcessPromise

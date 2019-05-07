@@ -26,6 +26,14 @@
     "workspaceContains:Cargo.toml"
   ],
   "contributes": {
+    "rootPatterns": [
+      {
+        "filetype": "rust",
+        "patterns": [
+          "Cargo.toml"
+        ]
+      }
+    ],
     "snippets": [
       {
         "language": "rust",
