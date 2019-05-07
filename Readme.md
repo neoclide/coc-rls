@@ -14,7 +14,7 @@ Adds language support for Rust to [coc.nvim](https://github.com/neoclide/coc.nvi
 - error squiggles and apply suggestions from errors
 - snippets
 
-Rust support is powered by the [Rust Language Server](https://github.com/rust-lang-nursery/rls)
+Rust support is powered by the [Rust Language Server](https://github.com/rust-lang/rls)
 (RLS). If you don't have it installed, the extension will install it for you.
 
 For support, please file an [issue on the repo](https://github.com/neoclide/coc-rls/issues/new)
