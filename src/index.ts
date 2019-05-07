@@ -203,7 +203,6 @@ class ClientWorkspace {
   }
 
   // Make an evironment to run the RLS.
-  // Tries to synthesise RUST_SRC_PATH for Racer, if one is not already set.
   public async makeRlsEnv(setLibPath = false): Promise<any> {
     const env = process.env
 
@@ -211,24 +210,20 @@ class ClientWorkspace {
     try {
       sysroot = await this.getSysroot(env)
     } catch (err) {
-      console.info(err.message)
-      console.info(`Let's retry with extended $PATH`)
+      workspace.showMessage(err.message)
+      workspace.showMessage(`Let's retry with extended $PATH`)
       env.PATH = `${env.HOME || '~'}/.cargo/bin:${env.PATH || ''}`
       try {
         sysroot = await this.getSysroot(env)
       } catch (e) {
-        console.warn('Error reading sysroot (second try)', e)
-        workspace.showMessage(
-          'RLS could not set RUST_SRC_PATH for Racer because it could not read the Rust sysroot.', 'warning'
-        )
+        // tslint:disable-next-line: no-console
+        console.error('Error reading sysroot (second try)', e)
+        workspace.showMessage(`Error reading sysroot: ${e.message}`, 'warning')
         return env
       }
     }
 
-    console.info(`Setting sysroot to`, sysroot)
-    if (!process.env.RUST_SRC_PATH) {
-      env.RUST_SRC_PATH = sysroot + '/lib/rustlib/src/rust/src'
-    }
+    workspace.showMessage(`Setting sysroot to` + sysroot)
     if (setLibPath) {
       function appendEnv(envVar: string, newComponent: string) {
         const old = process.env[envVar]
@@ -300,7 +295,7 @@ class ClientWorkspace {
 
   warnOnRlsToml() {
     const tomlPath = workspace.rootPath + '/rls.toml'
-    fs.access(tomlPath, fs.constants.F_OK,err => {
+    fs.access(tomlPath, fs.constants.F_OK, err => {
       if (!err) {
         workspace.showMessage(
           `Found deprecated rls.toml. Use Coc user settings instead, run ':CocConfig'`, 'warning'
