@@ -21,11 +21,11 @@ export interface RustupConfig {
 // This module handles running the RLS via rustup, including checking that rustup
 // is installed and installing any required components/toolchains.
 
-export async function runRlsViaRustup(env: any, config: RustupConfig): Promise<child_process.ChildProcess> {
-  await ensureToolchain(config)
-  await checkForRls(config)
-  return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
-}
+// export async function runRlsViaRustup(env: any, config: RustupConfig): Promise<child_process.ChildProcess> {
+//   await ensureToolchain(config)
+//   await checkForRls(config)
+//   return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
+// }
 
 export async function rustupUpdate(config: RustupConfig) {
   startSpinner('RLS', 'Updating…')
@@ -41,13 +41,14 @@ export async function rustupUpdate(config: RustupConfig) {
       stopSpinner('Up to date. Restart extension for changes to take effect.')
     }
   } catch (e) {
-    console.log(e)
+    // tslint:disable-next-line: no-console
+    console.error(e)
     stopSpinner('An error occurred whilst trying to update.')
   }
 }
 
 // Check for the nightly toolchain (and that rustup exists)
-async function ensureToolchain(config: RustupConfig): Promise<void> {
+export async function ensureToolchain(config: RustupConfig): Promise<void> {
   const toolchainInstalled = await hasToolchain(config)
   if (toolchainInstalled) {
     return
@@ -69,6 +70,7 @@ async function hasToolchain(config: RustupConfig): Promise<boolean> {
     return hasToolchain
   }
   catch (e) {
+    // tslint:disable-next-line: no-console
     console.log(e)
     // rustup not present
     workspace.showMessage('Rustup not available. Install from https://www.rustup.rs/', 'error')
@@ -79,13 +81,15 @@ async function hasToolchain(config: RustupConfig): Promise<boolean> {
 async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
   startSpinner('RLS', 'Installing toolchain…')
   try {
-    const { stdout, stderr } = await execChildProcess(config.path + ' toolchain install ' + config.channel)
-    console.log(stdout)
-    console.log(stderr)
+    let res = await workspace.runTerminalCommand(config.path + ' toolchain install ' + config.channel, workspace.rootPath)
+    if (res.success == false) {
+      throw new Error(`Install toolchain failed`)
+    }
     stopSpinner(config.channel + ' toolchain installed successfully')
   }
   catch (e) {
-    console.log(e)
+    // tslint:disable-next-line: no-console
+    console.error(e)
     workspace.showMessage('Could not install ' + config.channel + ' toolchain', 'error')
     stopSpinner('Could not install ' + config.channel + ' toolchain')
     throw e
@@ -93,7 +97,7 @@ async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
 }
 
 // Check for rls components.
-async function checkForRls(config: RustupConfig): Promise<void> {
+export async function checkForRls(config: RustupConfig): Promise<void> {
   const hasRls = await hasRlsComponents(config)
   if (hasRls) return
 
@@ -116,7 +120,8 @@ async function hasRlsComponents(config: RustupConfig): Promise<boolean> {
     )
   }
   catch (e) {
-    console.log(e)
+    // tslint:disable-next-line: no-console
+    console.error(e)
     // rustup error?
     workspace.showMessage('Unexpected error initialising RLS - error running rustup', 'error')
     throw e
@@ -200,6 +205,7 @@ export function getActiveChannel(rustupPath: string, wsPath: string): string {
     activeChannel = parseActiveToolchain(showOutput)
   }
 
-  console.info(`Detected active channel: ${activeChannel} (since 'rust-client.channel' is unspecified)`)
+  // tslint:disable-next-line: no-console
+  console.log(`Detected active channel: ${activeChannel} (since 'rust-client.channel' is unspecified)`)
   return activeChannel
 }

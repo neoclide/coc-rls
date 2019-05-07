@@ -1,13 +1,14 @@
 'use strict'
 import * as child_process from 'child_process'
-import { commands, Terminal, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace } from 'coc.nvim'
+import { commands, Terminal, languages, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace } from 'coc.nvim'
 import * as fs from 'fs'
 import path from 'path'
 import { NotificationType, WorkspaceFolder } from 'vscode-languageserver-protocol'
 import { RLSConfiguration } from './configuration'
-import { runRlsViaRustup, rustupUpdate } from './rustup'
+import { ensureToolchain, checkForRls, rustupUpdate } from './rustup'
 import { startSpinner, stopSpinner } from './spinner'
 import { ExecChildProcessResult, execFile } from './utils/child_process'
+import SignatureHelpProvider from './providers/signatureHelpProvider'
 
 let client: ClientWorkspace
 
@@ -70,6 +71,12 @@ class ClientWorkspace {
 
     // Create the language client and start the client.
     this.lc = new LanguageClient('rust-client', 'Rust Language Server', serverOptions, clientOptions)
+    context.subscriptions.push(
+      languages.registerSignatureHelpProvider(['rust'],
+        new SignatureHelpProvider(this.lc),
+        ['(', ',',]
+      )
+    )
 
     const promise = this.progressCounter()
 
@@ -82,7 +89,7 @@ class ClientWorkspace {
     return promise
   }
 
-  registerCommands(context: ExtensionContext) {
+  public registerCommands(context: ExtensionContext) {
     if (!this.lc) {
       return
     }
@@ -94,7 +101,7 @@ class ClientWorkspace {
 
     const restartServer = commands.registerCommand('rls.restart', async () => {
       if (this.lc) {
-        await this.lc.stop()
+        this.lc.stop()
       }
       return this.start(context)
     })
@@ -109,7 +116,7 @@ class ClientWorkspace {
           cwd: workspace.rootPath,
           env: process.env
         })
-        await terminal.show(true)
+        terminal.show(true)
         terminal.sendText('cargo run')
       })
     )
@@ -217,44 +224,40 @@ class ClientWorkspace {
     // Allow to override how RLS is started up.
     const rls_path = this.config.rlsPath
 
-    let childProcessPromise: Promise<child_process.ChildProcess>
+    let childProcess: child_process.ChildProcess
     if (rls_path) {
       const env = await this.makeRlsEnv(true)
       workspace.showMessage(`running: ${rls_path} at ${workspace.rootPath}`)
-      childProcessPromise = Promise.resolve(child_process.spawn(rls_path, [], { env, cwd: workspace.rootPath }))
+      childProcess = child_process.spawn(rls_path, [], { env, cwd: workspace.rootPath })
     } else if (this.config.rustupDisabled) {
       const env = await this.makeRlsEnv(true)
       workspace.showMessage(`running: rls at ${workspace.rootPath}`)
-      childProcessPromise = Promise.resolve(child_process.spawn('rls', [], { env, cwd: workspace.rootPath }))
+      childProcess = child_process.spawn('rls', [], { env, cwd: workspace.rootPath })
     } else {
-      const env = await this.makeRlsEnv()
       let config = this.config.rustupConfig()
+      await ensureToolchain(config)
+      await checkForRls(config)
+      //   return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
+      const env = await this.makeRlsEnv()
       workspace.showMessage(`running: ${config.path} run ${config.channel} rls, at ${workspace.rootPath}`)
-      childProcessPromise = runRlsViaRustup(env, config)
+      childProcess = child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
     }
-    try {
-      const childProcess = await childProcessPromise
-
-      childProcess.on('error', err => {
-        if ((err as any).code == 'ENOENT') {
-          // tslint:disable-next-line: no-console
-          console.error('Could not spawn RLS process: ' + err.message)
-        } else {
-          throw err
-        }
-      })
-
-      if (this.config.logToFile) {
-        const logPath = path.join(workspace.rootPath, 'rls' + Date.now() + '.log')
-        const logStream = fs.createWriteStream(logPath, { flags: 'w+' })
-        childProcess.stderr.pipe(logStream)
+    childProcess.on('error', (err: { code?: string; message: string }) => {
+      if (err.code === 'ENOENT') {
+        stopSpinner('RLS could not be started')
+        // tslint:disable-next-line: no-console
+        console.error(`Could not spawn RLS: ${err.message}`)
+        workspace.showMessage(`Could not spawn RLS: ${err.message}`, 'error')
       }
+    })
 
-      return childProcess
-    } catch (e) {
-      stopSpinner('RLS could not be started')
-      throw new Error('Error starting up rls.')
+    if (this.config.logToFile) {
+      const logPath = path.join(workspace.rootPath, 'rls' + Date.now() + '.log')
+      const logStream = fs.createWriteStream(logPath, { flags: 'w+' })
+      childProcess.stderr.pipe(logStream)
     }
+
+    return childProcess
   }
 
   async autoUpdate() {
