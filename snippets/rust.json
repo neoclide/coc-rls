@@ -19,9 +19,14 @@
     "body": ["unreachable!()"],
     "description": "Insert unreachable!"
   },
+  "print": {
+    "prefix": "print",
+    "body": ["print!(\"$1\", $2)$0"],
+    "description": "Insert print!"
+  },
   "println": {
     "prefix": "println",
-    "body": ["println!(\"${1:{\\}}\", $2)$0"],
+    "body": ["println!(\"$1\", $2)$0"],
     "description": "Insert println!"
   },
   "assert": {
@@ -65,4 +70,3 @@
     "description": "#[test]"
   }
 }
-
