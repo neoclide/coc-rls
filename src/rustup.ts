@@ -6,12 +6,17 @@ import { workspace } from 'coc.nvim'
 import { execChildProcess } from './utils/child_process'
 import { startSpinner, stopSpinner } from './spinner'
 
+const REQUIRED_COMPONENTS = ['rust-analysis', 'rust-src', 'rls']
+
+function isInstalledRegex(componentName: string): RegExp {
+  return new RegExp(`^(${componentName}.*) \\((default|installed)\\)$`)
+}
+
 export interface RustupConfig {
   channel: string
   path: string
   useWSL: boolean
 }
-
 
 // This module handles running the RLS via rustup, including checking that rustup
 // is installed and installing any required components/toolchains.
@@ -90,9 +95,7 @@ async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
 // Check for rls components.
 async function checkForRls(config: RustupConfig): Promise<void> {
   const hasRls = await hasRlsComponents(config)
-  if (hasRls) {
-    return
-  }
+  if (hasRls) return
 
   // missing component
   const confirmed = await workspace.showPrompt('RLS not installed. Install?')
@@ -107,16 +110,10 @@ async function checkForRls(config: RustupConfig): Promise<void> {
 async function hasRlsComponents(config: RustupConfig): Promise<boolean> {
   try {
     const { stdout } = await execChildProcess(config.path + ' component list --toolchain ' + config.channel)
-    const componentName = new RegExp('^rls.* \\((default|installed)\\)$', 'm')
-    if (
-      stdout.search(componentName) === -1 ||
-      stdout.search(/^rust-analysis.* \((default|installed)\)$/m) === -1 ||
-      stdout.search(/^rust-src.* \((default|installed)\)$/m) === -1) {
-      return false
-    }
-    else {
-      return true
-    }
+    let components = stdout.replace('\r', '').split('\n')
+    return REQUIRED_COMPONENTS.map(isInstalledRegex).every(isInstalledRegex =>
+      components.some(c => isInstalledRegex.test(c))
+    )
   }
   catch (e) {
     console.log(e)
@@ -128,47 +125,24 @@ async function hasRlsComponents(config: RustupConfig): Promise<boolean> {
 
 async function installRls(config: RustupConfig): Promise<void> {
   startSpinner('RLS', 'Installing components…')
-
-  const tryFn: (component: string) => Promise<(Error | null)> = async (component: string) => {
-    try {
-      const { stdout, stderr, } = await execChildProcess(config.path + ` component add ${component} --toolchain ` + config.channel)
-      console.log(stdout)
-      console.log(stderr)
-      return null
-    }
-    catch (e) {
-      workspace.showMessage(`Could not install RLS component (${component}) ${e.message}`, 'error')
-      const err = new Error(`installing ${component} failed, Error ${e}`)
-      return err
+  let install = async component => {
+    let cmd = config.path + ` component add ${component} --toolchain ` + config.channel
+    let res = await workspace.runTerminalCommand(cmd, workspace.cwd, true)
+    if (!res.success) {
+      throw new Error(`Install ${component} failed: ${res.content}`)
     }
   }
-
-  {
-    const e = await tryFn('rust-analysis')
-    if (e !== null) {
-      stopSpinner('Could not install RLS')
-      throw e
+  try {
+    for (let name of REQUIRED_COMPONENTS) {
+      await install(name)
     }
+    const hasRls = await hasRlsComponents(config)
+    if (!hasRls) throw new Error(`${REQUIRED_COMPONENTS.join(',')} not exists in ${config.channel}`)
+  } catch (e) {
+    stopSpinner('components install failed')
+    workspace.showMessage(e.message)
+    throw e
   }
-
-  {
-    const e = await tryFn('rust-src')
-    if (e !== null) {
-      stopSpinner('Could not install RLS')
-      throw e
-    }
-  }
-
-  console.log('install rls')
-
-  {
-    const e = await tryFn('rls-preview')
-    if (e !== null) {
-      stopSpinner('Could not install RLS')
-      throw e
-    }
-  }
-
   stopSpinner('RLS components installed successfully')
 }
 

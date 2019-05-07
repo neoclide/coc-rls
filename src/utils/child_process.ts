@@ -6,6 +6,7 @@
  */
 
 import * as child_process from 'child_process'
+import { workspace } from 'coc.nvim'
 
 export interface ExecChildProcessResult<TOut = string> {
   readonly stdout: TOut
@@ -16,6 +17,7 @@ export async function execChildProcess(command: string): Promise<ExecChildProces
   const r: Promise<ExecChildProcessResult> = new Promise((resolve, reject) => {
     child_process.exec(command, {
       encoding: 'utf8',
+      cwd: workspace.rootPath
     }, (error, stdout, stderr) => {
       if (!!error) {
         reject(error)
