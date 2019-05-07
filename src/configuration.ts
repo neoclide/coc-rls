@@ -38,7 +38,8 @@ export class RLSConfiguration {
   }
 
   public get rustupDisabled(): boolean {
-    return this.configuration.get<boolean>('rust-client.disableRustup', false)
+    const rlsOverriden = Boolean(this.rlsPath)
+    return rlsOverriden || this.configuration.get<boolean>('rust-client.disableRustup', false)
   }
 
   public get revealOutputChannelOn(): RevealOutputChannelOn {
