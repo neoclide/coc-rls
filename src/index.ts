@@ -215,8 +215,8 @@ class ClientWorkspace {
         const old = process.env[envVar]
         return old ? `${newComponent}:${old}` : newComponent
       }
-      env.DYLD_LIBRARY_PATH = appendEnv('DYLD_LIBRARY_PATH', sysroot + '/lib')
-      env.LD_LIBRARY_PATH = appendEnv('LD_LIBRARY_PATH', sysroot + '/lib')
+      env.DYLD_LIBRARY_PATH = appendEnv('DYLD_LIBRARY_PATH', path.join(sysroot, 'lib'))
+      env.LD_LIBRARY_PATH = appendEnv('LD_LIBRARY_PATH', path.join(sysroot, 'lib'))
     }
 
     return env
@@ -246,15 +246,15 @@ class ClientWorkspace {
 
       childProcess.on('error', err => {
         if ((err as any).code == 'ENOENT') {
-          console.error('Could not spawn RLS process: ', err.message)
-          workspace.showMessage('Could not start RLS', 'warning')
+          // tslint:disable-next-line: no-console
+          console.error('Could not spawn RLS process: ' + err.message)
         } else {
           throw err
         }
       })
 
       if (this.config.logToFile) {
-        const logPath = workspace.rootPath + '/rls' + Date.now() + '.log'
+        const logPath = path.join(workspace.rootPath, 'rls' + Date.now() + '.log')
         const logStream = fs.createWriteStream(logPath, { flags: 'w+' })
         logStream.on('open', function(_f) {
           childProcess.stderr.addListener('data', function(chunk) {
@@ -280,7 +280,7 @@ class ClientWorkspace {
   }
 
   warnOnRlsToml() {
-    const tomlPath = workspace.rootPath + '/rls.toml'
+    const tomlPath = path.join(workspace.rootPath, 'rls.toml')
     fs.access(tomlPath, fs.constants.F_OK, err => {
       if (!err) {
         workspace.showMessage(
