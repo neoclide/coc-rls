@@ -47,15 +47,7 @@ class ClientWorkspace {
     // These methods cannot throw an error, so we can drop it.
 
     startSpinner('RLS', 'Starting')
-
     this.warnOnRlsToml()
-    // Check for deprecated env vars.
-    if (process.env.RLS_PATH || process.env.RLS_ROOT) {
-      workspace.showMessage(
-        'Found deprecated environment variables (RLS_PATH or RLS_ROOT). Use `rls.path` or `rls.root` settings.', 'warning'
-      )
-    }
-
     const serverOptions: ServerOptions = async () => {
       await this.autoUpdate()
       return this.makeRlsProcess()
@@ -256,14 +248,7 @@ class ClientWorkspace {
       if (this.config.logToFile) {
         const logPath = path.join(workspace.rootPath, 'rls' + Date.now() + '.log')
         const logStream = fs.createWriteStream(logPath, { flags: 'w+' })
-        logStream.on('open', function(_f) {
-          childProcess.stderr.addListener('data', function(chunk) {
-            logStream.write(chunk.toString())
-          })
-        }).on('error', function(err: any) {
-          console.error("Couldn't write to " + logPath + ' (' + err + ')')
-          logStream.end()
-        })
+        childProcess.stderr.pipe(logStream)
       }
 
       return childProcess
