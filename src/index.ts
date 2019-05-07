@@ -25,7 +25,6 @@ let client: ClientWorkspace
 
 export async function activate(context: ExtensionContext) {
   let folder = workspace.rootPath
-
   warnOnMissingCargoToml(folder)
 
   client = new ClientWorkspace({
@@ -79,6 +78,7 @@ class ClientWorkspace {
         { language: 'rust', scheme: 'file' },
         { language: 'rust', scheme: 'untitled' }
       ],
+      diagnosticCollectionName: 'rust',
       synchronize: { configurationSection: 'rust' },
       // Controls when to focus the channel rather than when to reveal it in the drop-down list
       revealOutputChannelOn: this.config.revealOutputChannelOn,
