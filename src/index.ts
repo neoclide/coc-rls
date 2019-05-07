@@ -24,9 +24,7 @@ import { ExecChildProcessResult, execFile } from './utils/child_process'
 let client: ClientWorkspace
 
 export async function activate(context: ExtensionContext) {
-  let file = await workspace.findUp('Cargo.toml')
-  let folder = file == null ? null : path.dirname(file)
-  folder = folder || workspace.rootPath
+  let folder = workspace.rootPath
 
   warnOnMissingCargoToml(folder)
 
