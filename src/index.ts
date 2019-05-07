@@ -12,15 +12,13 @@
 'use strict'
 
 import * as child_process from 'child_process'
-import { services, commands, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, workspace } from 'coc.nvim'
+import { commands, Terminal, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace } from 'coc.nvim'
 import * as fs from 'fs'
 import path from 'path'
-import { ImplementationRequest, Location, NotificationType, TextDocumentPositionParams, WorkspaceFolder } from 'vscode-languageserver-protocol'
-import Uri from 'vscode-uri'
+import { NotificationType, WorkspaceFolder } from 'vscode-languageserver-protocol'
 import { RLSConfiguration } from './configuration'
 import { runRlsViaRustup, rustupUpdate } from './rustup'
 import { startSpinner, stopSpinner } from './spinner'
-import { runCommand } from './tasks'
 import { ExecChildProcessResult, execFile } from './utils/child_process'
 
 let client: ClientWorkspace
@@ -125,8 +123,18 @@ class ClientWorkspace {
     })
     context.subscriptions.push(restartServer)
 
+    let terminal: Terminal
     context.subscriptions.push(
-      commands.registerCommand('rls.run', (cmd) => runCommand(workspace.rootPath, cmd))
+      commands.registerCommand('rls.run', async () => {
+        if (terminal) terminal.dispose()
+        terminal = await workspace.createTerminal({
+          name: 'cargo run',
+          cwd: workspace.rootPath,
+          env: process.env
+        })
+        await terminal.show(true)
+        terminal.sendText('cargo run')
+      })
     )
   }
 

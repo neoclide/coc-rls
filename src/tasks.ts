@@ -8,15 +8,18 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-import { workspace, TerminalResult } from 'coc.nvim'
+import { workspace } from 'coc.nvim'
 
 export interface Cmd {
-  binary: string
+  command: string
   args: string[]
-  env: { [key: string]: string }
+  env?: { [key: string]: string }
 }
 
-export function runCommand(cwd: string, command: Cmd): Promise<TerminalResult> {
-  let cmd = `${command.binary} ${command.args.join(' ')}`
-  return workspace.runTerminalCommand(cmd, cwd)
+export function runCommand(cwd: string, command: Cmd): void {
+  let cmd = `${command.command} ${command.args.join(' ')}`
+  workspace.runTerminalCommand(cmd, cwd).catch(e => {
+    // tslint:disable-next-line: no-console
+    console.error(e)
+  })
 }
