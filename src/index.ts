@@ -1,16 +1,4 @@
-/*tslint:disable*/
-// Copyright 2017 The RLS Developers. See the COPYRIGHT
-// file at the top-level directory of this distribution and at
-// http://rust-lang.org/COPYRIGHT.
-//
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
 'use strict'
-
 import * as child_process from 'child_process'
 import { commands, Terminal, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace } from 'coc.nvim'
 import * as fs from 'fs'
@@ -46,9 +34,9 @@ export async function deactivate(): Promise<void> {
 class ClientWorkspace {
   // FIXME(#233): Don't only rely on lazily initializing it once on startup,
   // handle possible `rust-client.*` value changes while extension is running
-  readonly config: RLSConfiguration
-  lc: LanguageClient | null = null
-  readonly folder: WorkspaceFolder
+  public readonly config: RLSConfiguration
+  public lc: LanguageClient | null = null
+  public readonly folder: WorkspaceFolder
 
   constructor(folder: WorkspaceFolder) {
     this.config = RLSConfiguration.loadFromWorkspace(Uri.parse(folder.uri).fsPath)
@@ -191,7 +179,7 @@ class ClientWorkspace {
     })
   }
 
-  async getSysroot(env: Object): Promise<string> {
+  public async getSysroot(env: Object): Promise<string> {
     let output: ExecChildProcessResult
     try {
       if (this.config.rustupDisabled) {
@@ -216,7 +204,7 @@ class ClientWorkspace {
 
   // Make an evironment to run the RLS.
   // Tries to synthesise RUST_SRC_PATH for Racer, if one is not already set.
-  async makeRlsEnv(setLibPath = false): Promise<any> {
+  public async makeRlsEnv(setLibPath = false): Promise<any> {
     const env = process.env
 
     let sysroot: string | undefined
@@ -253,7 +241,7 @@ class ClientWorkspace {
     return env
   }
 
-  async makeRlsProcess(): Promise<child_process.ChildProcess> {
+  public async makeRlsProcess(): Promise<child_process.ChildProcess> {
     // Allow to override how RLS is started up.
     const rls_path = this.config.rlsPath
 
@@ -276,7 +264,7 @@ class ClientWorkspace {
       const childProcess = await childProcessPromise
 
       childProcess.on('error', err => {
-        if ((<any>err).code == 'ENOENT') {
+        if ((err as any).code == 'ENOENT') {
           console.error('Could not spawn RLS process: ', err.message)
           workspace.showMessage('Could not start RLS', 'warning')
         } else {
@@ -312,7 +300,7 @@ class ClientWorkspace {
 
   warnOnRlsToml() {
     const tomlPath = workspace.rootPath + '/rls.toml'
-    fs.access(tomlPath, fs.constants.F_OK, (err) => {
+    fs.access(tomlPath, fs.constants.F_OK,err => {
       if (!err) {
         workspace.showMessage(
           `Found deprecated rls.toml. Use Coc user settings instead, run ':CocConfig'`, 'warning'
