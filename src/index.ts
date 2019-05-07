@@ -47,7 +47,6 @@ class ClientWorkspace {
     // These methods cannot throw an error, so we can drop it.
 
     startSpinner('RLS', 'Starting')
-    this.warnOnRlsToml()
     const serverOptions: ServerOptions = async () => {
       await this.autoUpdate()
       return this.makeRlsProcess()
@@ -262,17 +261,6 @@ class ClientWorkspace {
     if (this.config.updateOnStartup && !this.config.rustupDisabled) {
       await rustupUpdate(this.config.rustupConfig())
     }
-  }
-
-  warnOnRlsToml() {
-    const tomlPath = path.join(workspace.rootPath, 'rls.toml')
-    fs.access(tomlPath, fs.constants.F_OK, err => {
-      if (!err) {
-        workspace.showMessage(
-          `Found deprecated rls.toml. Use Coc user settings instead, run ':CocConfig'`, 'warning'
-        )
-      }
-    })
   }
 }
 
