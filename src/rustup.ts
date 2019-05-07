@@ -149,9 +149,9 @@ async function installRls(config: RustupConfig): Promise<void> {
       console.log(stderr)
       return null
     }
-    catch (_e) {
-      workspace.showMessage(`Could not install RLS component (${component})`, 'error')
-      const err = new Error(`installing ${component} failed`)
+    catch (e) {
+      workspace.showMessage(`Could not install RLS component (${component}) ${e.message}`, 'error')
+      const err = new Error(`installing ${component} failed, Error ${e}`)
       return err
     }
   }
