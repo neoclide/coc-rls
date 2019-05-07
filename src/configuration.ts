@@ -87,7 +87,11 @@ export class RLSConfiguration {
   }
 
   public rustupConfig(): RustupConfig {
-    return new RustupConfig(this.channel, this.rustupPath)
+    return {
+      channel: this.channel,
+      path: this.rustupPath,
+      useWSL: false
+    }
   }
 
   private static readRevealOutputChannelOn(configuration: WorkspaceConfiguration): RevealOutputChannelOn {

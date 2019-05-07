@@ -6,15 +6,12 @@ import { workspace } from 'coc.nvim'
 import { execChildProcess } from './utils/child_process'
 import { startSpinner, stopSpinner } from './spinner'
 
-export class RustupConfig {
-  public readonly channel: string
-  public readonly path: string
-
-  constructor(channel: string, path: string) {
-    this.channel = channel
-    this.path = path
-  }
+export interface RustupConfig {
+  channel: string
+  path: string
+  useWSL: boolean
 }
+
 
 // This module handles running the RLS via rustup, including checking that rustup
 // is installed and installing any required components/toolchains.
