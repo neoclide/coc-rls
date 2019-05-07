@@ -11,7 +11,7 @@ import { ExecChildProcessResult, execFile } from './utils/child_process'
 
 let client: ClientWorkspace
 
-export async function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext): Promise<void> {
   let folder = workspace.rootPath
   warnOnMissingCargoToml(folder)
 
@@ -131,7 +131,6 @@ class ClientWorkspace {
 
     const runningProgress: Set<string> = new Set()
     const asPercent = (fraction: number): string => `${Math.round(fraction * 100)}%`
-    let runningDiagnostics = 0
     await this.lc.onReady()
     stopSpinner('RLS')
 
@@ -152,19 +151,6 @@ class ClientWorkspace {
         }
         startSpinner('RLS', status)
       } else {
-        stopSpinner('RLS')
-      }
-    })
-
-    // FIXME these are legacy notifications used by RLS ca jan 2018.
-    // remove once we're certain we've progress on.
-    this.lc.onNotification(new NotificationType('rustDocument/beginBuild'), function(_f: any) {
-      runningDiagnostics++
-      startSpinner('RLS', 'working')
-    })
-    this.lc.onNotification(new NotificationType('rustDocument/diagnosticsEnd'), function(_f: any) {
-      runningDiagnostics--
-      if (runningDiagnostics <= 0) {
         stopSpinner('RLS')
       }
     })
@@ -305,7 +291,7 @@ class ClientWorkspace {
   }
 }
 
-async function warnOnMissingCargoToml(folder: string) {
+function warnOnMissingCargoToml(folder: string): void {
   if (!fs.existsSync(path.join(folder, 'Cargo.toml'))) {
     workspace.showMessage(
       'A Cargo.toml file must be at the root of the workspace in order to support all features', 'warning'
