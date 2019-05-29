@@ -106,19 +106,12 @@ export class RLSConfiguration {
    */
   private static readChannel(rustupPath: string, configuration: WorkspaceConfiguration, wsPath: string): string {
     let channel = configuration.get<string | null>('rust-client.channel', null)
-    if (channel != null) {
-      return channel
-    } else {
-      try {
-        channel = getActiveChannel(rustupPath, wsPath)
-        return channel
-      }
-      // rustup might not be installed at the time the configuration is
-      // initially loaded, so silently ignore the error and return a default value
-      catch (e) {
-        return 'nightly'
-      }
-
+    if (channel != null) return channel
+    try {
+      channel = getActiveChannel(rustupPath, wsPath)
+      return channel || 'nightly'
+    } catch (e) {
+      return 'nightly'
     }
   }
 }
