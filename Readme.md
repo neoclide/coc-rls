@@ -22,6 +22,9 @@ or talk to us [on Gitter](https://gitter.im/rust-lang/IDEs) or in #rust-dev-tool
 on IRC ([Mozilla servers](https://wiki.mozilla.org/IRC)). There is also some
 [troubleshooting and debugging](https://github.com/neoclide/coc.nvim/wiki/Debug-language-server) advice.
 
+**Note:** multiple projects is not supported, you have to use different vim
+instances.
+
 ## Quick start
 
 - Install [rustup](https://www.rustup.rs/) (Rust toolchain manager).
