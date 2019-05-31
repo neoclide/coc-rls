@@ -133,7 +133,8 @@ To enable formatting on save, open `coc-settings.json` by `:CocConfig`, then add
 
 ## Requirements
 
-- [Rustup](https://www.rustup.rs/),
+- Unless you have `"rust-client.disableRustup": true`, install
+  [Rustup](https://www.rustup.rs/) required.
 - A Rust toolchain (the extension will configure this for you, with
   permission),
 - RLS (currently `rls-preview`), `rust-src`, and `rust-analysis` components (the
