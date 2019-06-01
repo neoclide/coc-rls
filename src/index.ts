@@ -2,6 +2,7 @@
 import * as child_process from 'child_process'
 import { commands, Terminal, languages, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace } from 'coc.nvim'
 import * as fs from 'fs'
+import os from 'os'
 import path from 'path'
 import { NotificationType, WorkspaceFolder } from 'vscode-languageserver-protocol'
 import { RLSConfiguration } from './configuration'
@@ -13,8 +14,12 @@ import SignatureHelpProvider from './providers/signatureHelpProvider'
 let client: ClientWorkspace
 
 export async function activate(context: ExtensionContext): Promise<void> {
-  let folder = workspace.rootPath
-  warnOnMissingCargoToml(folder)
+  let workspaceFolder = workspace.workspaceFolders.find(workspaceFolder => {
+    let folder = Uri.parse(workspaceFolder.uri).fsPath
+    return fs.existsSync(path.join(folder, 'Cargo.toml'))
+  })
+  if (!workspaceFolder) warnOnMissingCargoToml()
+  let folder = workspaceFolder ? Uri.parse(workspaceFolder.uri).fsPath : workspace.rootPath
 
   client = new ClientWorkspace({
     uri: Uri.file(folder).toString(),
@@ -23,6 +28,18 @@ export async function activate(context: ExtensionContext): Promise<void> {
   client.start(context).catch(_e => {
     // noop
   })
+  workspace.onDidChangeWorkspaceFolders(e => {
+    if (e.added) {
+      let folder = e.added.find(workspaceFolder => {
+        let folder = Uri.parse(workspaceFolder.uri).fsPath
+        return fs.existsSync(path.join(folder, 'Cargo.toml'))
+      })
+      if (folder) workspace.showMessage(`Multiple rust workspace folder not supported!`, 'warning')
+    }
+  })
+  // workspace.onDidChangeWorkspaceFolders(e => {
+  // })
+  // context.subscriptions.push(workspace.on)
 }
 
 export async function deactivate(): Promise<void> {
@@ -196,7 +213,7 @@ class ClientWorkspace {
     } catch (err) {
       workspace.showMessage(err.message)
       workspace.showMessage(`Let's retry with extended $PATH`)
-      env.PATH = `${env.HOME || '~'}/.cargo/bin:${env.PATH || ''}`
+      env.PATH = `${os.homedir()}/.cargo/bin:${env.PATH || ''}`
       try {
         sysroot = await this.getSysroot(env)
       } catch (e) {
@@ -267,10 +284,8 @@ class ClientWorkspace {
   }
 }
 
-function warnOnMissingCargoToml(folder: string): void {
-  if (!fs.existsSync(path.join(folder, 'Cargo.toml'))) {
-    workspace.showMessage(
-      'A Cargo.toml file must be at the root of the workspace in order to support all features', 'warning'
-    )
-  }
+function warnOnMissingCargoToml(): void {
+  workspace.showMessage(
+    'A Cargo.toml file must be at the root of the workspace in order to support all features', 'warning'
+  )
 }
