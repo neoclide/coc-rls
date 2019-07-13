@@ -61,7 +61,7 @@ class ClientWorkspace {
     this.folder = folder
   }
 
-  async start(context: ExtensionContext) {
+  public async start(context: ExtensionContext) {
     // These methods cannot throw an error, so we can drop it.
 
     startSpinner('RLS', 'Starting')
@@ -139,7 +139,7 @@ class ClientWorkspace {
     )
   }
 
-  async progressCounter() {
+  public async progressCounter() {
     if (!this.lc) {
       return
     }
@@ -149,7 +149,7 @@ class ClientWorkspace {
     await this.lc.onReady()
     stopSpinner('RLS')
 
-    this.lc.onNotification(new NotificationType('window/progress'), function(progress: any) {
+    this.lc.onNotification(new NotificationType('window/progress'), (progress: any) => {
       if (progress.done) {
         runningProgress.delete(progress.id)
       } else {
@@ -171,7 +171,7 @@ class ClientWorkspace {
     })
   }
 
-  async stop() {
+  public async stop() {
     let promise: Thenable<void> = Promise.resolve(void 0)
     if (this.lc) {
       promise = this.lc.stop()
@@ -277,7 +277,7 @@ class ClientWorkspace {
     return childProcess
   }
 
-  async autoUpdate() {
+  public async autoUpdate() {
     if (this.config.updateOnStartup && !this.config.rustupDisabled) {
       await rustupUpdate(this.config.rustupConfig())
     }
