@@ -85,21 +85,155 @@ This extension provides some options into `coc-settings.json`. These
 options have names which start with `rust.`. Install [coc-json](https://github.com/neoclide/coc-json)
 for auto completion support.
 
-- `rust-client.logToFile` - When set to true, RLS stderr is logged to a file at workspace root level.
-- `rust-client.rustupPath` - Path to rustup executable, default `rustup`.
-- `rust-client.rlsPath` - Path to rls executable (only required for rls developers), default: `null`.
-- `rust-client.revealOutputChannelOn` - Specifies message severity on which the output channel will be revealed.
-- `rust-client.updateOnStartup` - Update the RLS whenever the extension starts up, default: `false`.
-- `rust-client.disableRustup` - Disable usage of rustup and use rustc/rls from PATH.
-- `rust-client.channel` - Rust channel to install RLS from. By default it will use the same channel as your currently open project
-  `rls-preview`
-- `rust.show_warnings` - set to false to silence warnings in the editor.
-- `rust.all_targets` - build and index code for all targets (i.e., integration tests, examples, and benches)
-- `rust.build_lib` - if you have both a binary and library in your crate, set to
-  true to build only the library.
-- `rust.build_bin` - if you have multiple binaries, you can specify which to build
-  using this option.
-- `rust.cfg_test` - build and index test code (i.e., code with `#[cfg(test)]`/`#[test]`)
+- "rust-client.logToFile":
+
+      	When set to true, RLS stderr is logged to a file at workspace root level. Requires reloading extension after change.,  default: `false`
+
+- "rust-client.rustupPath":
+
+      	Path to rustup executable. Ignored if rustup is disabled.,  default: `"rustup"`
+
+- "rust-client.rlsPath":
+
+      	Override RLS path. Only required for RLS developers. If you set this and use rustup, you should also set `rust-client.channel` to ensure your RLS sees the right libraries. If you don't use rustup, make sure to set `rust-client.disableRustup`.,  default: `null`
+
+- "rust-client.revealOutputChannelOn":
+
+      	Specifies message severity on which the output channel will be revealed. Requires reloading extension after change.,  default: `"never"`
+
+      	Valid options: ["info","warn","error","never"]
+
+- "rust-client.updateOnStartup":
+
+      	Update the RLS whenever the extension starts up.,  default: `false`
+
+- "rust-client.disableRustup":
+
+      	Disable usage of rustup and use rustc/rls from PATH.,  default: `false`
+
+- "rust-client.channel":
+
+      	Rust channel to invoke rustup with. Ignored if rustup is disabled. By default, uses the same channel as your currently open project.,  default: `null`
+
+      	Valid options: ["stable","beta","nightly"]
+
+- "rust-client.trace.server":
+
+      	Traces the communication between VS Code and the Rust language server.,  default: `"off"`
+
+      	Valid options: ["off","messages","verbose"]
+
+- "rust.sysroot":
+
+      	--sysroot,  default: `null`
+
+- "rust.target":
+
+      	--target,  default: `null`
+
+- "rust.rustflags":
+
+      	Flags added to RUSTFLAGS.,  default: `null`
+
+- "rust.clear_env_rust_log":
+
+      	Clear the RUST_LOG environment variable before running rustc or cargo.,  default: `true`
+
+- "rust.build_lib":
+
+      	Specify to run analysis as if running `cargo check --lib`. Use `null` to auto-detect. (unstable),  default: `null`
+
+- "rust.build_bin":
+
+      	Specify to run analysis as if running `cargo check --bin <name>`. Use `null` to auto-detect. (unstable),  default: `null`
+
+- "rust.cfg_test":
+
+      	Build cfg(test) code. (unstable),  default: `false`
+
+- "rust.unstable_features":
+
+      	Enable unstable features.,  default: `false`
+
+- "rust.wait_to_build":
+
+      	Time in milliseconds between receiving a change notification and starting build.,  default: `1500`
+
+- "rust.show_warnings":
+
+      	Show warnings.,  default: `true`
+
+- "rust.use_crate_blacklist":
+
+      	Don't index crates on the crate blacklist.,  default: `true`
+
+- "rust.crate_blacklist":
+
+      Overrides the default list of packages for which analysis is skipped.
+
+  Available since RLS 1.38, default: `["cocoa","gleam","glium","idna","libc","openssl","rustc_serialize","serde","serde_json","typenum","unicode_normalization","unicode_segmentation","winapi"]`
+
+- "rust.build_on_save":
+
+      	Only index the project when a file is saved and not on change.,  default: `false`
+
+- "rust.features":
+
+      	A list of Cargo features to enable.,  default: `[]`
+
+- "rust.all_features":
+
+      	Enable all Cargo features.,  default: `false`
+
+- "rust.no_default_features":
+
+      	Do not enable default Cargo features.,  default: `false`
+
+- "rust.racer_completion":
+
+      	Enables code completion using racer.,  default: `true`
+
+- "rust.clippy_preference":
+
+      	Controls eagerness of clippy diagnostics when available. Valid values are (case-insensitive):
+
+- "off": Disable clippy lints.
+- "opt-in": Clippy lints are shown when crates specify `#![warn(clippy)]`.
+- "on": Clippy lints enabled for all crates in workspace.
+  You need to install clippy via rustup if you haven't already., default: `"opt-in"`
+
+      Valid options: ["on","opt-in","off"]
+
+- "rust.jobs":
+
+      	Number of Cargo jobs to be run in parallel.,  default: `null`
+
+- "rust.all_targets":
+
+      	Checks the project as if you were running cargo check --all-targets (I.e., check all targets and integration tests too).,  default: `true`
+
+- "rust.target_dir":
+
+      	When specified, it places the generated analysis files at the specified target directory. By default it is placed target/rls directory.,  default: `null`
+
+- "rust.rustfmt_path":
+
+      	When specified, RLS will use the Rustfmt pointed at the path instead of the bundled one,  default: `null`
+
+- "rust.build_command":
+
+      EXPERIMENTAL (requires `unstable_features`)
+
+  If set, executes a given program responsible for rebuilding save-analysis to be loaded by the RLS. The program given should output a list of resulting .json files on stdout.
+  Implies `rust.build_on_save`: true., default: `null`
+
+- "rust.full_docs":
+
+      	Instructs cargo to enable full documentation extraction during save-analysis while building the crate.,  default: `null`
+
+- "rust.show_hover_context":
+
+      	Show additional context in hover tooltips when available. This is often the type local variable declaration.,  default: `true`
 
 ## Features
 
