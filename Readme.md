@@ -163,10 +163,6 @@ for auto completion support.
 
       	Show warnings.,  default: `true`
 
-- "rust.use_crate_blacklist":
-
-      	Don't index crates on the crate blacklist.,  default: `true`
-
 - "rust.crate_blacklist":
 
       Overrides the default list of packages for which analysis is skipped.
