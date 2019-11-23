@@ -73,7 +73,8 @@ class ClientWorkspace {
       // Register the server for Rust files
       documentSelector: [
         { language: 'rust', scheme: 'file' },
-        { language: 'rust', scheme: 'untitled' }
+        { language: 'rust', scheme: 'untitled' },
+        { pattern: 'Cargo.toml' }
       ],
       diagnosticCollectionName: 'rust',
       synchronize: { configurationSection: 'rust' },
