@@ -157,7 +157,7 @@ for auto completion support.
 
 - `"rust.wait_to_build"`:
 
-  Time in milliseconds between receiving a change notification and starting build.,  default: `1500`
+  Time in milliseconds between receiving a change notification and starting build.,  default: `null`
 
 - `"rust.show_warnings"`:
 
