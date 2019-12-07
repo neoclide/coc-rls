@@ -41,9 +41,9 @@ instances.
 - You'll be prompted to install the RLS. Once installed, the RLS should start
   building your project.
 
-## Nixos
+## NixOS
 
-Nixos users should use nix-shell or direnv for development. Follow [these instructions](https://nixos.wiki/wiki/Development_environment_with_nix-shell) to set them up first.
+NixOS users should use nix-shell or direnv for development. Follow [these instructions](https://nixos.wiki/wiki/Development_environment_with_nix-shell) to set them up first.
 
 Then create two files:
 
