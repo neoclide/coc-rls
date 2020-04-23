@@ -37,6 +37,10 @@ export class RLSConfiguration {
     return this.configuration.get<boolean>('rust-client.logToFile', false)
   }
 
+  public get setLibPath(): boolean {
+    return this.configuration.get<boolean>('rust-client.setLibPath', true)
+  }
+
   public get rustupDisabled(): boolean {
     const rlsOverriden = Boolean(this.rlsPath)
     return rlsOverriden || this.configuration.get<boolean>('rust-client.disableRustup', false)

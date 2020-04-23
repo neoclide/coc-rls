@@ -49,6 +49,11 @@
           "default": false,
           "description": "When set to true, RLS stderr is logged to a file at workspace root level. Requires reloading extension after change."
         },
+        "rust-client.setLibPath": {
+          "type": "boolean",
+          "default": true,
+          "description": "When set to false, environment variable DYLD_LIBRARY_PATH & LD_LIBRARY_PATH are kept for rls."
+        },
         "rust-client.rustupPath": {
           "type": "string",
           "default": "rustup",
