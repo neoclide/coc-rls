@@ -244,11 +244,11 @@ class ClientWorkspace {
 
     let childProcess: child_process.ChildProcess
     if (rls_path) {
-      const env = await this.makeRlsEnv(true)
+      const env = await this.makeRlsEnv(this.config.setLibPath)
       workspace.showMessage(`running: ${rls_path} at ${workspace.rootPath}`)
       childProcess = child_process.spawn(rls_path, [], { env, cwd: workspace.rootPath })
     } else if (this.config.rustupDisabled) {
-      const env = await this.makeRlsEnv(true)
+      const env = await this.makeRlsEnv(this.config.setLibPath)
       workspace.showMessage(`running: rls at ${workspace.rootPath}`)
       childProcess = child_process.spawn('rls', [], { env, cwd: workspace.rootPath })
     } else {
