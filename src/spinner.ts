@@ -44,5 +44,6 @@ export function stopSpinner(message: string): void {
     clearInterval(spinnerTimer)
   }
   spinnerTimer = null
+  statusItem.isProgress = false
   statusItem.text = message || ''
 }

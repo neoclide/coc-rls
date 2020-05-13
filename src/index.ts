@@ -1,6 +1,6 @@
 'use strict'
 import * as child_process from 'child_process'
-import { commands, Terminal, languages, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace } from 'coc.nvim'
+import { commands, Terminal, languages, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace, OutputChannel } from 'coc.nvim'
 import * as fs from 'fs'
 import os from 'os'
 import path from 'path'
@@ -12,34 +12,33 @@ import { ExecChildProcessResult, execFile } from './utils/child_process'
 import SignatureHelpProvider from './providers/signatureHelpProvider'
 
 let client: ClientWorkspace
-
 export async function activate(context: ExtensionContext): Promise<void> {
+  let { subscriptions } = context
   let workspaceFolder = workspace.workspaceFolders.find(workspaceFolder => {
     let folder = Uri.parse(workspaceFolder.uri).fsPath
     return fs.existsSync(path.join(folder, 'Cargo.toml'))
   })
-  if (!workspaceFolder) warnOnMissingCargoToml()
+  let channel = workspace.createOutputChannel('rls')
+  if (!workspaceFolder) {
+    channel.appendLine(`[Warning]: A Cargo.toml file must be at the root of the workspace in order to support all features`)
+  }
   let folder = workspaceFolder ? Uri.parse(workspaceFolder.uri).fsPath : workspace.rootPath
-
   client = new ClientWorkspace({
     uri: Uri.file(folder).toString(),
-    name: path.basename(folder)
-  })
+    name: path.basename(folder),
+  }, channel)
   client.start(context).catch(_e => {
     // noop
   })
-  workspace.onDidChangeWorkspaceFolders(e => {
+  subscriptions.push(workspace.onDidChangeWorkspaceFolders(e => {
     if (e.added) {
       let folder = e.added.find(workspaceFolder => {
         let folder = Uri.parse(workspaceFolder.uri).fsPath
         return fs.existsSync(path.join(folder, 'Cargo.toml'))
       })
-      if (folder) workspace.showMessage(`Multiple rust workspace folder not supported!`, 'warning')
+      if (folder) channel.appendLine(`[Warning]: Multiple rust workspace folder not supported!`)
     }
-  })
-  // workspace.onDidChangeWorkspaceFolders(e => {
-  // })
-  // context.subscriptions.push(workspace.on)
+  }))
 }
 
 export async function deactivate(): Promise<void> {
@@ -56,7 +55,7 @@ class ClientWorkspace {
   public lc: LanguageClient | null = null
   public readonly folder: WorkspaceFolder
 
-  constructor(folder: WorkspaceFolder) {
+  constructor(folder: WorkspaceFolder, private channel: OutputChannel) {
     this.config = RLSConfiguration.loadFromWorkspace(Uri.parse(folder.uri).fsPath)
     this.folder = folder
   }
@@ -78,6 +77,7 @@ class ClientWorkspace {
       ],
       diagnosticCollectionName: 'rust',
       synchronize: { configurationSection: 'rust' },
+      outputChannel: this.channel,
       // Controls when to focus the channel rather than when to reveal it in the drop-down list
       revealOutputChannelOn: this.config.revealOutputChannelOn,
       initializationOptions: {
@@ -212,20 +212,20 @@ class ClientWorkspace {
     try {
       sysroot = await this.getSysroot(env)
     } catch (err) {
-      workspace.showMessage(err.message)
-      workspace.showMessage(`Let's retry with extended $PATH`)
+      this.channel.appendLine('[Error] ' + err.message)
+      this.channel.appendLine(`Let's retry with extended $PATH`)
       env.PATH = `${os.homedir()}/.cargo/bin:${env.PATH || ''}`
       try {
         sysroot = await this.getSysroot(env)
       } catch (e) {
         // tslint:disable-next-line: no-console
         console.error('Error reading sysroot (second try)', e)
-        workspace.showMessage(`Error reading sysroot: ${e.message}`, 'warning')
+        workspace.showMessage(`Error reading sysroot: ${e.message}`, 'error')
         return env
       }
     }
 
-    workspace.showMessage(`Setting sysroot to` + sysroot)
+    this.channel.appendLine(`Setting sysroot to` + sysroot)
     if (setLibPath) {
       function appendEnv(envVar: string, newComponent: string) {
         const old = process.env[envVar]
@@ -245,11 +245,11 @@ class ClientWorkspace {
     let childProcess: child_process.ChildProcess
     if (rls_path) {
       const env = await this.makeRlsEnv(this.config.setLibPath)
-      workspace.showMessage(`running: ${rls_path} at ${workspace.rootPath}`)
+      this.channel.appendLine(`running: ${rls_path} at ${workspace.rootPath}`)
       childProcess = child_process.spawn(rls_path, [], { env, cwd: workspace.rootPath })
     } else if (this.config.rustupDisabled) {
       const env = await this.makeRlsEnv(this.config.setLibPath)
-      workspace.showMessage(`running: rls at ${workspace.rootPath}`)
+      this.channel.appendLine(`running: rls at ${workspace.rootPath}`)
       childProcess = child_process.spawn('rls', [], { env, cwd: workspace.rootPath })
     } else {
       let config = this.config.rustupConfig()
@@ -257,15 +257,14 @@ class ClientWorkspace {
       await checkForRls(config)
       //   return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
       const env = await this.makeRlsEnv()
-      workspace.showMessage(`running: ${config.path} run ${config.channel} rls, at ${workspace.rootPath}`)
+      this.channel.appendLine(`running: ${config.path} run ${config.channel} rls, at ${workspace.rootPath}`)
       childProcess = child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
     }
     childProcess.on('error', (err: { code?: string; message: string }) => {
       if (err.code === 'ENOENT') {
         stopSpinner('RLS could not be started')
-        // tslint:disable-next-line: no-console
-        console.error(`Could not spawn RLS: ${err.message}`)
         workspace.showMessage(`Could not spawn RLS: ${err.message}`, 'error')
+        this.channel.appendLine(`Could not spawn RLS: ${err.message}`)
       }
     })
 
@@ -283,10 +282,4 @@ class ClientWorkspace {
       await rustupUpdate(this.config.rustupConfig())
     }
   }
-}
-
-function warnOnMissingCargoToml(): void {
-  workspace.showMessage(
-    'A Cargo.toml file must be at the root of the workspace in order to support all features', 'warning'
-  )
 }
