@@ -28,6 +28,12 @@ instances.
 ## Quick start
 
 - Install [rustup](https://www.rustup.rs/) (Rust toolchain manager).
+- Install rust toolchain components.
+
+  ```bash
+  rustup component add rls rust-analysis rust-src
+  ```
+
 - Install this extension in your vim by:
 
   ```vim
