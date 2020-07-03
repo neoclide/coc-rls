@@ -54,7 +54,8 @@ NixOS users should use nix-shell or direnv for development. Follow [these instru
 Then create two files:
 
 1. An **.envrc** file containing `use_nix`.
-2. And **shell.nix** containing:
+2. Add `"rust-client.disableRustup": true` to `coc-settings.json`
+3. And **shell.nix** containing:
 
 ```
 let
