@@ -6,7 +6,7 @@ import os from 'os'
 import path from 'path'
 import { NotificationType, WorkspaceFolder } from 'vscode-languageserver-protocol'
 import { RLSConfiguration } from './configuration'
-import { ensureToolchain, checkForRls, rustupUpdate } from './rustup'
+import { ensureToolchain, rustupUpdate, ensureComponents } from './rustup'
 import { startSpinner, stopSpinner } from './spinner'
 import { ExecChildProcessResult, execFile } from './utils/child_process'
 import SignatureHelpProvider from './providers/signatureHelpProvider'
@@ -254,7 +254,9 @@ class ClientWorkspace {
     } else {
       let config = this.config.rustupConfig()
       await ensureToolchain(config)
-      await checkForRls(config)
+      // We only need a rustup-installed RLS if we weren't given a
+      // custom RLS path.
+      await ensureComponents(config)
       //   return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
       const env = await this.makeRlsEnv()
       this.channel.appendLine(`running: ${config.path} run ${config.channel} rls, at ${workspace.rootPath}`)

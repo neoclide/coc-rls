@@ -96,21 +96,6 @@ async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
   }
 }
 
-// Check for rls components.
-export async function checkForRls(config: RustupConfig): Promise<void> {
-  const hasRls = await hasRlsComponents(config)
-  if (hasRls) return
-
-  // missing component
-  const confirmed = await workspace.showPrompt('RLS not installed. Install?')
-  if (confirmed) {
-    await installRls(config)
-  }
-  else {
-    throw new Error('RLS not installed')
-  }
-}
-
 async function hasRlsComponents(config: RustupConfig): Promise<boolean> {
   try {
     const { stdout } = await execChildProcess(config.path + ' component list --toolchain ' + config.channel)
@@ -128,7 +113,24 @@ async function hasRlsComponents(config: RustupConfig): Promise<boolean> {
   }
 }
 
-async function installRls(config: RustupConfig): Promise<void> {
+/**
+ * Checks for the required toolchain components and prompts the user to install
+ * them if they're missing.
+ */
+export async function ensureComponents(config: RustupConfig) {
+  if (await hasRlsComponents(config)) {
+    return
+  }
+  let res = await workspace.showPrompt('Some Rust components not installed. Install?')
+  if (res) {
+    await installComponents(config)
+    workspace.showMessage(`Rust components successfully installed!`, 'more')
+  } else {
+    throw new Error()
+  }
+}
+
+async function installComponents(config: RustupConfig): Promise<void> {
   startSpinner('RLS', 'Installing components…')
   let install = async component => {
     let cmd = config.path + ` component add ${component} --toolchain ` + config.channel
