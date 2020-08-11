@@ -97,18 +97,20 @@ async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
 }
 
 // Check for rls components.
-export async function checkForRls(config: RustupConfig): Promise<void> {
+export async function checkForRls(config: RustupConfig, askInstall: boolean): Promise<void> {
   const hasRls = await hasRlsComponents(config)
   if (hasRls) return
 
   // missing component
-  const confirmed = await workspace.showPrompt('RLS not installed. Install?')
-  if (confirmed) {
-    await installRls(config)
+  if (askInstall) {
+    const confirmed = await workspace.showPrompt('RLS not installed. Install?')
+    if (confirmed) {
+      await installRls(config)
+      return
+    }
   }
-  else {
-    throw new Error('RLS not installed')
-  }
+
+  throw new Error('RLS not installed')
 }
 
 async function hasRlsComponents(config: RustupConfig): Promise<boolean> {

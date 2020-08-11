@@ -254,7 +254,7 @@ class ClientWorkspace {
     } else {
       let config = this.config.rustupConfig()
       await ensureToolchain(config)
-      await checkForRls(config)
+      await checkForRls(config, this.config.askInstallRls)
       //   return child_process.spawn(config.path, ['run', config.channel, 'rls'], { env, cwd: workspace.rootPath })
       const env = await this.makeRlsEnv()
       this.channel.appendLine(`running: ${config.path} run ${config.channel} rls, at ${workspace.rootPath}`)
