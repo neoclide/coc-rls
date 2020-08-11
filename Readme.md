@@ -128,6 +128,10 @@ for auto completion support.
 
   Valid options: `["stable","beta","nightly"]`
 
+- `"rust-client.askInstallRls"`:
+
+  Ask to install RLS if not found., default: `true`
+
 - `"rust-client.trace.server"`:
 
   Traces the communication between VS Code and the Rust language server., default: `"off"`

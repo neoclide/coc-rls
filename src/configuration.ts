@@ -58,6 +58,10 @@ export class RLSConfiguration {
     return RLSConfiguration.readChannel(this.rustupPath, this.configuration, this.wsPath)
   }
 
+  public get askInstallRls(): boolean {
+      return this.configuration.get<boolean>('rust-client.askInstallRls', true)
+  }
+
   /**
    * If specified, RLS will be spawned by executing a file at the given path.
    */

@@ -101,6 +101,11 @@
           "default": null,
           "description": "Rust channel to invoke rustup with. Ignored if rustup is disabled. By default, uses the same channel as your currently open project."
         },
+        "rust-client.askInstallRls": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ask to install RLS if not found."
+        },
         "rust-client.trace.server": {
           "type": "string",
           "enum": [
