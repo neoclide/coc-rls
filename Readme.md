@@ -41,7 +41,7 @@ instances.
   ```
 
 - (Skip this step if you already have Rust projects that you'd like to work on.)
-  Create a new Rust project by following [these instructions](https://doc.rust-lang.org/book/second-edition/ch01-02-hello-world.html#creating-a-project-with-cargo).
+  Create a new Rust project by following [these instructions](https://doc.rust-lang.org/book/ch01-03-hello-cargo.html#creating-a-project-with-cargo).
 - Open a Rust project. Open the folder for the whole project (i.e., the folder containing 'Cargo.toml'),
   not the 'src' folder.
 - You'll be prompted to install the RLS. Once installed, the RLS should start
