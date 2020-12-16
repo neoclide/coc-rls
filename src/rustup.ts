@@ -1,10 +1,10 @@
+import * as child_process from 'child_process'
+import { window, workspace } from 'coc.nvim'
+import { startSpinner, stopSpinner } from './spinner'
+import { execChildProcess } from './utils/child_process'
 'use strict'
 
-import * as child_process from 'child_process'
-import { workspace } from 'coc.nvim'
 
-import { execChildProcess } from './utils/child_process'
-import { startSpinner, stopSpinner } from './spinner'
 
 const REQUIRED_COMPONENTS = ['rust-analysis', 'rust-src', 'rls']
 
@@ -54,7 +54,7 @@ export async function ensureToolchain(config: RustupConfig): Promise<void> {
     return
   }
 
-  const confirmed = await workspace.showPrompt(config.channel + ' toolchain not installed. Install?')
+  const confirmed = await window.showPrompt(config.channel + ' toolchain not installed. Install?')
   if (confirmed) {
     await tryToInstallToolchain(config)
   }
@@ -73,7 +73,7 @@ async function hasToolchain(config: RustupConfig): Promise<boolean> {
     // tslint:disable-next-line: no-console
     console.log(e)
     // rustup not present
-    workspace.showMessage('Rustup not available. Install from https://www.rustup.rs/', 'error')
+    window.showMessage('Rustup not available. Install from https://www.rustup.rs/', 'error')
     throw e
   }
 }
@@ -81,7 +81,7 @@ async function hasToolchain(config: RustupConfig): Promise<boolean> {
 async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
   startSpinner('RLS', 'Installing toolchain…')
   try {
-    let res = await workspace.runTerminalCommand(config.path + ' toolchain install ' + config.channel, workspace.rootPath)
+    let res = await window.runTerminalCommand(config.path + ' toolchain install ' + config.channel, workspace.rootPath)
     if (res.success == false) {
       throw new Error(`Install toolchain failed`)
     }
@@ -90,7 +90,7 @@ async function tryToInstallToolchain(config: RustupConfig): Promise<void> {
   catch (e) {
     // tslint:disable-next-line: no-console
     console.error(e)
-    workspace.showMessage('Could not install ' + config.channel + ' toolchain', 'error')
+    window.showMessage('Could not install ' + config.channel + ' toolchain', 'error')
     stopSpinner('Could not install ' + config.channel + ' toolchain')
     throw e
   }
@@ -108,7 +108,7 @@ async function hasRlsComponents(config: RustupConfig): Promise<boolean> {
     // tslint:disable-next-line: no-console
     console.error(e)
     // rustup error?
-    workspace.showMessage('Unexpected error initialising RLS - error running rustup', 'error')
+    window.showMessage('Unexpected error initialising RLS - error running rustup', 'error')
     throw e
   }
 }
@@ -121,10 +121,10 @@ export async function ensureComponents(config: RustupConfig) {
   if (await hasRlsComponents(config)) {
     return
   }
-  let res = await workspace.showPrompt('Some Rust components not installed. Install?')
+  let res = await window.showPrompt('Some Rust components not installed. Install?')
   if (res) {
     await installComponents(config)
-    workspace.showMessage(`Rust components successfully installed!`, 'more')
+    window.showMessage(`Rust components successfully installed!`, 'more')
   } else {
     throw new Error()
   }
@@ -134,7 +134,7 @@ async function installComponents(config: RustupConfig): Promise<void> {
   startSpinner('RLS', 'Installing components…')
   let install = async component => {
     let cmd = config.path + ` component add ${component} --toolchain ` + config.channel
-    let res = await workspace.runTerminalCommand(cmd, workspace.cwd, true)
+    let res = await window.runTerminalCommand(cmd, workspace.cwd, true)
     if (!res.success) {
       throw new Error(`Install ${component} failed: ${res.content}`)
     }
@@ -147,7 +147,7 @@ async function installComponents(config: RustupConfig): Promise<void> {
     if (!hasRls) throw new Error(`${REQUIRED_COMPONENTS.join(',')} not exists in ${config.channel}`)
   } catch (e) {
     stopSpinner('components install failed')
-    workspace.showMessage(e.message)
+    window.showMessage(e.message)
     throw e
   }
   stopSpinner('RLS components installed successfully')

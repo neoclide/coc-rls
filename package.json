@@ -331,11 +331,11 @@
     "@chemzqm/tsconfig": "^0.0.3",
     "@chemzqm/tslint-config": "^1.0.18",
     "@types/node": "^11.13.10",
-    "coc.nvim": "^0.0.66",
+    "coc.nvim": "^0.0.79-next.12",
     "rimraf": "^2.6.3",
     "ts-loader": "^6.0.3",
     "tslint": "^5.16.0",
-    "typescript": "^3.4.4",
+    "typescript": "^4.1.3",
     "vscode-languageserver-protocol": "^3.15.0-next.4",
     "webpack": "^4.34.0",
     "webpack-cli": "^3.3.4"

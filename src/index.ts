@@ -1,15 +1,18 @@
-'use strict'
 import * as child_process from 'child_process'
-import { commands, Terminal, languages, ExtensionContext, LanguageClient, LanguageClientOptions, ServerOptions, services, Uri, workspace, OutputChannel } from 'coc.nvim'
+import {
+  commands,
+  ExtensionContext,
+  LanguageClient, LanguageClientOptions, languages, OutputChannel, ServerOptions, services, Terminal, Uri, window, workspace
+} from 'coc.nvim'
 import * as fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { NotificationType, WorkspaceFolder } from 'vscode-languageserver-protocol'
 import { RLSConfiguration } from './configuration'
-import { ensureToolchain, rustupUpdate, ensureComponents } from './rustup'
+import SignatureHelpProvider from './providers/signatureHelpProvider'
+import { ensureComponents, ensureToolchain, rustupUpdate } from './rustup'
 import { startSpinner, stopSpinner } from './spinner'
 import { ExecChildProcessResult, execFile } from './utils/child_process'
-import SignatureHelpProvider from './providers/signatureHelpProvider'
 
 let client: ClientWorkspace
 export async function activate(context: ExtensionContext): Promise<void> {
@@ -18,7 +21,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     let folder = Uri.parse(workspaceFolder.uri).fsPath
     return fs.existsSync(path.join(folder, 'Cargo.toml'))
   })
-  let channel = workspace.createOutputChannel('rls')
+  let channel = window.createOutputChannel('rls')
   if (!workspaceFolder) {
     channel.appendLine(`[Warning]: A Cargo.toml file must be at the root of the workspace in order to support all features`)
   }
@@ -220,7 +223,7 @@ class ClientWorkspace {
       } catch (e) {
         // tslint:disable-next-line: no-console
         console.error('Error reading sysroot (second try)', e)
-        workspace.showMessage(`Error reading sysroot: ${e.message}`, 'error')
+        window.showMessage(`Error reading sysroot: ${e.message}`, 'error')
         return env
       }
     }
@@ -265,7 +268,7 @@ class ClientWorkspace {
     childProcess.on('error', (err: { code?: string; message: string }) => {
       if (err.code === 'ENOENT') {
         stopSpinner('RLS could not be started')
-        workspace.showMessage(`Could not spawn RLS: ${err.message}`, 'error')
+        window.showMessage(`Could not spawn RLS: ${err.message}`, 'error')
         this.channel.appendLine(`Could not spawn RLS: ${err.message}`)
       }
     })

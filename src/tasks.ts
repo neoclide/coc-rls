@@ -1,4 +1,4 @@
-import { workspace } from 'coc.nvim'
+import { window } from 'coc.nvim'
 
 export interface Cmd {
   command: string
@@ -8,7 +8,7 @@ export interface Cmd {
 
 export function runCommand(cwd: string, command: Cmd): void {
   let cmd = `${command.command} ${command.args.join(' ')}`
-  workspace.runTerminalCommand(cmd, cwd).catch(e => {
+  window.runTerminalCommand(cmd, cwd).catch(e => {
     // tslint:disable-next-line: no-console
     console.error(e)
   })
