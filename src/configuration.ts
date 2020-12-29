@@ -29,6 +29,10 @@ function fromStringToRevealOutputChannelOn(value: string): RevealOutputChannelOn
 }
 
 export class RLSConfiguration {
+  public get enable(): boolean {
+    return this.configuration.get<boolean>('rust-client.enable', true)
+  }
+
   public get rustupPath(): string {
     return this.configuration.get('rust-client.rustupPath', 'rustup')
   }

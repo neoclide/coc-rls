@@ -26,10 +26,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
     channel.appendLine(`[Warning]: A Cargo.toml file must be at the root of the workspace in order to support all features`)
   }
   let folder = workspaceFolder ? Uri.parse(workspaceFolder.uri).fsPath : workspace.rootPath
+
+  const config = RLSConfiguration.loadFromWorkspace(Uri.parse(Uri.file(folder).toString()).fsPath)
+  if (!config.enable) return;
+
   client = new ClientWorkspace({
     uri: Uri.file(folder).toString(),
     name: path.basename(folder),
-  }, channel)
+  }, config, channel)
   client.start(context).catch(_e => {
     // noop
   })
@@ -58,8 +62,8 @@ class ClientWorkspace {
   public lc: LanguageClient | null = null
   public readonly folder: WorkspaceFolder
 
-  constructor(folder: WorkspaceFolder, private channel: OutputChannel) {
-    this.config = RLSConfiguration.loadFromWorkspace(Uri.parse(folder.uri).fsPath)
+  constructor(folder: WorkspaceFolder, config: RLSConfiguration, private channel: OutputChannel) {
+    this.config = config
     this.folder = folder
   }
 
