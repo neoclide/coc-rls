@@ -92,6 +92,10 @@ This extension provides some options into `coc-settings.json`. These
 options have names which start with `rust.`. Install [coc-json](https://github.com/neoclide/coc-json)
 for auto completion support.
 
+- `"rust-client.enable"`:
+
+  When set to true, enables this extension. Requires reloading extension after change., default: `true`
+
 - `"rust-client.logToFile"`:
 
   When set to true, RLS stderr is logged to a file at workspace root level. Requires reloading extension after change., default: `false`
