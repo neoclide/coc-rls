@@ -21,14 +21,15 @@ export async function activate(context: ExtensionContext): Promise<void> {
     let folder = Uri.parse(workspaceFolder.uri).fsPath
     return fs.existsSync(path.join(folder, 'Cargo.toml'))
   })
-  let channel = window.createOutputChannel('rls')
-  if (!workspaceFolder) {
-    channel.appendLine(`[Warning]: A Cargo.toml file must be at the root of the workspace in order to support all features`)
-  }
   let folder = workspaceFolder ? Uri.parse(workspaceFolder.uri).fsPath : workspace.rootPath
 
   const config = RLSConfiguration.loadFromWorkspace(Uri.parse(Uri.file(folder).toString()).fsPath)
   if (!config.enable) return;
+
+  let channel = window.createOutputChannel('rls')
+  if (!workspaceFolder) {
+    channel.appendLine(`[Warning]: A Cargo.toml file must be at the root of the workspace in order to support all features`)
+  }
 
   client = new ClientWorkspace({
     uri: Uri.file(folder).toString(),
