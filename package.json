@@ -44,6 +44,11 @@
       "type": "object",
       "title": "Rust configuration",
       "properties": {
+        "rust-client.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "When set to true, enables this extension. Requires reloading extension after change."
+        },
         "rust-client.logToFile": {
           "type": "boolean",
           "default": false,
