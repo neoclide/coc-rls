@@ -1,5 +1,7 @@
 # Rust support for coc.nvim
 
+> **Deprecated:** coc-rls is no longer maintained.
+
 [![NPM version](https://img.shields.io/npm/v/coc-rls.svg?style=flat-square)](https://www.npmjs.com/package/coc-rls)
 
 It's fork of [rls-vscode](https://github.com/rust-lang-nursery/rls-vscode).
